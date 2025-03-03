@@ -46,8 +46,8 @@ class Browser:
         options.page_load_strategy = 'none'
         url = os.getcwd()
         pdb.set_trace()
-        service = Service(f"{url}\\chromedriver.exe")
-        self.driver = webdriver.Chrome(service=service, options=options)
+        # service = Service(f"{url}\\chromedriver.exe")
+        self.driver = webdriver.Chrome(options=options)
         # self.driver = webdriver.Chrome(options=options)
 
     def visit_page(self):
