@@ -41,7 +41,8 @@ PLAYER_LOGIN_BTN_XPATH="//div[@class='MobileNav_sign_in__qA2oK MobileNav_imp__hc
 
 REDEEM_CODE_INPUT_BOX_XPATH = "//div[contains(@class, 'RedeemStepBox_input_box__') and contains(@class, 'RedeemStepBox_vip__')]//div[contains(@class, 'Input_input_box__')]//div[contains(@class, 'Input_input_wrap_box__')]//input[@type='text']"
 REDEEM_INITIATE_BUTTON_XPATH = "//div[contains(@class,'RedeemStepBox_btn_wrap__')]//div[contains(@class,'Button_btn_wrap__')]"
-
+# //*[@id="root"]/div/div[7]/div[3]/div/div[2]/div[2]/div[1]/div/div
+# //input[@placeholder='يرجى إدخال رمز استرداد']
 CODE_ERROR_NOTICE_XPATH="//div[contains(@class, 'Input_error_text__')]//div[1]"
 
 REDEEM_CONFIRM_POP_UP_XPATH = "//div[contains(@class,'PopStatusPrompt_active__')]"
@@ -243,7 +244,7 @@ class Browser:
             
             # Enter redemption code
             redeem_input = WebDriverWait(self.driver, 15).until(
-                EC.element_to_be_clickable((By.XPATH, REDEEM_CODE_INPUT_BOX_XPATH)))
+                EC.element_to_be_selected((By.XPATH, REDEEM_CODE_INPUT_BOX_XPATH)))
             self.clear_and_type(redeem_input, redeem_code)
             time.sleep(random.uniform(0.5, 1.2))
             # Initiate redemption
