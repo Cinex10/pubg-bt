@@ -1,3 +1,4 @@
+import pdb
 import random
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -244,6 +245,7 @@ class Browser:
             self.wait_for_page_load()
             
             # Enter redemption code
+            pdb.set_trace()
             redeem_input = WebDriverWait(self.driver, 15).until(
             EC.presence_of_element_located((By.XPATH, REDEEM_CODE_INPUT_BOX_XPATH))
             )
