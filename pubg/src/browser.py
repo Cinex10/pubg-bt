@@ -330,11 +330,11 @@ class Browser:
                 EC.presence_of_element_located((By.XPATH, REDEEM_SUCCESS_NOTICE_XPATH)))
             return True
         except TimeoutException:
-            WebDriverWait(self.driver, 4).until(
-                    EC.visibility_of_element_located((By.XPATH, REDEEM_CONFIRM_POP_UP_XPATH))
+            ok_btn = WebDriverWait(self.driver, 5).until(
+                    EC.element_to_be_clickable((By.XPATH, REDEEM_CONFIRM_BTN_POP_UP_XPATH))
                     )
-            ok_btn = self.driver.find_element(By.XPATH, REDEEM_CONFIRM_BTN_POP_UP_XPATH)
             self.safe_click(ok_btn)
+            
             # try:
             #     error_element = WebDriverWait(self.driver, 3).until(
             #         EC.presence_of_element_located((By.XPATH, REDEEM_ERROR_NOTICE_XPATH)))
