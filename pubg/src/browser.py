@@ -270,6 +270,12 @@ class Browser:
                 WebDriverWait(self.driver, 15).until(
                 EC.visibility_of_element_located((By.XPATH, REDEEM_CODE_POP_UP_XPATH))
                 )
+                self.human_scroll()
+
+                # Handle submission
+                self.handle_redemption_submission()
+                
+                print('Redemption submitted')
             except TimeoutException:
                 try:
                     ok_btn = WebDriverWait(self.driver, 4).until(
@@ -283,12 +289,6 @@ class Browser:
                     print(error_element.text)
                     return
                 
-            self.human_scroll()
-
-            # Handle submission
-            self.handle_redemption_submission()
-            
-            print('Redemption submitted')
 
             # Check outcome
             return self.check_redemption_outcome()
