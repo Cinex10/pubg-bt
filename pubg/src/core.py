@@ -7,12 +7,16 @@ def process(email_address, password, player_id, redeem_code):
     browser = Browser()
 
     browser.visit_page()
-    time.sleep(3)
     try:
         #
         #browser.implicitly_wait(10)
-        browser.sign_in(email_address=email_address, password=password)
-    except:
+        is_logged_in = browser.is_logged_in()
+        print('is logged in ', is_logged_in)
+        if not is_logged_in:
+            browser.sign_in(email_address=email_address, password=password)
+        
+    except Exception as e:
+        print(f"Sign in error: {str(e)}")
         raise Exception("Failed to sign in")
 
     try:

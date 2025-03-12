@@ -1,4 +1,4 @@
-import pdb
+import random
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -8,6 +8,15 @@ import time
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
 import os
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+import random
+import logging
+
+
+COOKIES_XPATH='/html[1]/body[1]/div[2]/div[1]/div[11]/div[3]/div[1]/div[1]/div[1]'
 
 
 DETECT_PAGE_LOADED_XPATH='//div[@class="Banner_title__dnHBH"]'
@@ -15,43 +24,93 @@ SIGN_IN_BUTTON_SELECTOR='div.MobileNav_sign_in__qA2oK'
 SIGN_IN_BUTTON_SELECTOR2='div.Button_icon_text__C-ysi'
 
 IFRAME_XPATH='//iframe[contains(@src,"https://www.midasbuy.com/apps/login/home/sa")]'
-CONTINUE_SIGN_IN_BUTTON_XPATH='/html/body/div/div[1]/div/div[3]/div[1]/div/div[4]/div'
+CONTINUE_SIGN_IN_BUTTON_XPATH="//div[@class='btn comfirm-btn']"
 EMAIL_ADDRESS_FIELD_XPATH='/html/body/div/div[1]/div/div[3]/div[1]/div/div[3]/div/div/div/div[1]/p/input'
 PASSWORD_INPUT_FIELD_XPATH='/html/body/div/div[1]/div/div[3]/div[1]/div[1]/div[2]/div[2]/div/input'
 FINAL_SIGN_IN_BUTTON_XPATH='/html/body/div/div[1]/div/div[3]/div[1]/div[2]/div'
 
 
-PLAYER_ID_LOCATION_XPATH='//span[@class="UserTabBox_id__u8hgT"]'
+PLAYER_ID_LOCATION_CSS='span[class*="UserTabBox_id__"]'
 SIGN_IN_BUTTON_XPATH='//div[@class="MobileNav_sign_in__qA2oK"]'
-PLAYER_ID_SWITCH_INITIATE_BUTTON_SELECTOR='div.UserTabBox_user_head__65f05 > span'
+PLAYER_ID_SWITCH_INITIATE_BUTTON_XPATH="//i[@class='i-midas:switch icon']"
 PLAYER_ID_SWITCH_INITIATE_BUTTON_SELECTOR_NONE = 'div.Banner_user_tab_box__Bp6NY > div > div > div'
-PLAYER_ID_INPUT_FIELD_XPATH='/html/body/div[2]/div/div[5]/div[2]/div[1]/div/div[2]/div[1]/div/div[1]/input | //*[@id="root"]/div/div[5]/div[2]/div[1]/div/div[3]/div/div/div[1]/input'
-PLAYER_ID_SWITCH_OK_BUTTON_SELECTOR='div.BindLoginPop_btn_wrap__eiPwz > div > div > div > div'
+PLAYER_ID_INPUT_FIELD_XPATH="//div[contains(@class, 'SelectServerBox_input_wrap_box__')]//input"
+PLAYER_ID_SWITCH_OK_BUTTON_XPATH="//div[contains(@class, 'BindLoginPop_btn_wrap__')]//div[contains(@class, 'Button_btn_wrap__')]//div[contains(@class, 'Button_btn__') and contains(@class, 'Button_btn_primary__')]//div//div[contains(@class, 'Button_icon_text__') and normalize-space()='OK']"
+PLAYER_LOGIN_BTN_XPATH="//div[@class='MobileNav_sign_in__qA2oK MobileNav_imp__hchy7 false']"
 
 
-REDEEM_CODE_INPUT_BOX_XPATH = '/html/body/div[2]/div/div[7]/div[3]/div/div[2]/div[2]/div[1]/div/div/div[1]/input'
-REDEEM_INITIATE_BUTTON_SELECTOR = '#root > div > div.container_wrap > div.redeem_modules_box.default_box > div > div.RedeemStepBox_step_box__kecmM.RedeemStepBox_redeem_step__Cb6tE > div.RedeemStepBox_mess__6gbK6 > div.RedeemStepBox_btn_wrap__wEKY9 > div > div > div > div'
-# /html/body/div[2]/div/div[6]/div[8]/div[2]/p
+REDEEM_CODE_INPUT_BOX_XPATH = "//div[contains(@class, 'RedeemStepBox_input_box__') and contains(@class, 'RedeemStepBox_vip__')]//div[contains(@class, 'Input_input_box__')]//div[contains(@class, 'Input_input_wrap_box__')]//input[@type='text']"
+REDEEM_INITIATE_BUTTON_XPATH = "//div[contains(@class,'RedeemStepBox_btn_wrap__')]//div[contains(@class,'Button_btn_wrap__')]"
+
+CODE_ERROR_NOTICE_XPATH="//div[contains(@class, 'Input_error_text__')]//div[1]"
+
+REDEEM_CONFIRM_POP_UP_XPATH = "//div[contains(@class,'PopStatusPrompt_active__')]"
+REDEEM_CONFIRM_BTN_POP_UP_XPATH = '//*[@id="root"]/div[2]/div[7]/div[8]/div[2]/div[3]/div/div/div/div/div'
+
+# PopStatusPrompt_pop_mode_box__nSRlx PopStatusPrompt_active__GMZrj
+
+REDEEM_CODE_POP_UP_XPATH = "//div[contains(@class, 'PopConfirmRedeem_pop_mode_box__')]"
+REDEEM_CODE_POP_UP_CONTENT_XPATH = "//div[contains(@class, 'PopConfirmRedeem_mess_wrap')]"
+
+
+
 SUBMIT_REDEEM_CODE_BUTTON_XPATH='/html/body/div[2]/div/div[7]/div[7]/div[2]/div/div[6]/div[1]/div/div/div/div/div'
 SUBMIT_REDEEM_CODE_BUTTON_XPATH2='/html/body/div[2]/div/div[7]/div[7]/div[2]/div/div[7]/div[1]/div/div/div/div/div'
+SUBMIT_REDEEM_CODE_BUTTON_XPATH3="//div[contains(@class, 'Button_icon_text__')][contains(text(),'إرسال')]"
 
-REDEEM_ERROR_NOTICE_XPATH='/html/body/div[2]/div/div[7]/div[3]/div/div[2]/div[2]/div[1]/div[3]/div'
-REDEEM_SUCCESS_NOTICE_XPATH = '/html/body/div[2]/div/div[3]/div/div[1]/div/div[1]'
+REDEEM_ERROR_NOTICE_XPATH="//div[contains(@class, 'Input_error_text__')]//div[1]"
+# REDEEM_SUCCESS_NOTICE_XPATH = '/html/body/div[2]/div/div[3]/div/div[1]/div/div[1]'
+REDEEM_SUCCESS_NOTICE_XPATH = "//div[contains(@class, 'PurchaseContainer_text__')][contains(text(),'نجاح')]"
 
-from selenium.webdriver.chrome.service import Service
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class RedemptionError(Exception):
+    pass
+
+class PlayerSwitchError(Exception):
+    pass
 
 class Browser:
     def __init__(self) -> None:
+        url = os.getcwd()
+        user_data = os.path.join(url, 'user-data')
         options = Options()
         options.page_load_strategy = 'none'
-        url = os.getcwd()
-        pdb.set_trace()
+        options.add_argument(f"--user-data-dir={user_data}")
+        
         # service = Service(f"{url}\\chromedriver.exe")
         self.driver = webdriver.Chrome(options=options)
         # self.driver = webdriver.Chrome(options=options)
+    
+    def safe_click(self, locator, delay=15):
+        """Click element with retries and JS fallback"""
+        element = WebDriverWait(self.driver, delay).until(
+            EC.element_to_be_clickable(locator))
+        try:
+            element.click()
+        except Exception:
+            self.driver.execute_script("arguments[0].click();", element)
 
     def visit_page(self):
         self.driver.get('https://www.midasbuy.com/midasbuy/sa/redeem/pubgm')
+        
+        try:
+            self.safe_click((By.XPATH, COOKIES_XPATH), delay=5)
+            print('Cookies accepted')
+        except:
+            print(f"Cookies")
+        
+        
+    
+    def is_logged_in(self) -> bool:
+        try:
+            WebDriverWait(self.driver, 6).until(
+                EC.presence_of_element_located((By.XPATH, PLAYER_LOGIN_BTN_XPATH))
+            )
+            return False
+        except:
+            return True
 
     def sign_in(self, email_address, password):
         print('Sign In')
@@ -59,9 +118,9 @@ class Browser:
             EC.presence_of_element_located((By.XPATH, DETECT_PAGE_LOADED_XPATH))
         )
 
-
+        print('Page Loaded')
         status = self.driver.execute_script(f"document.querySelector('{SIGN_IN_BUTTON_SELECTOR}').click();return 'clicked login button'")
-        time.sleep(3)
+        time.sleep(random.uniform(1, 2.5))
 
         status = self.driver.execute_script(f"document.querySelector('{SIGN_IN_BUTTON_SELECTOR2}').click();return 'clicked login button'")
         print(status)
@@ -69,30 +128,48 @@ class Browser:
         iframe = WebDriverWait(self.driver, 15).until(
             EC.presence_of_element_located((By.XPATH, IFRAME_XPATH))
         )
-
+        print('iframe')
 
         self.driver.switch_to.frame(iframe)
 
-
+        print('iframe switched')
 
         email_address_field=WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.XPATH, EMAIL_ADDRESS_FIELD_XPATH))
         )
-
-        email_address_field.send_keys(email_address)
+        
+        print('email_address_field')
+        
+        if email_address_field.get_attribute('value') != email_address:
+            self.clear_and_type(email_address_field, email_address)
+            print('email filled')
+        else:
+            print('Email Address is already filled. Skipping the step.')
+        
         continue_button = WebDriverWait(self.driver, 20).until(
                     EC.presence_of_element_located((By.XPATH, CONTINUE_SIGN_IN_BUTTON_XPATH))
                 )
-        self.driver.execute_script(
-            'arguments[0].click()',
-            continue_button
-        )
+        
+        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", continue_button)
+        
+        time.sleep(random.uniform(0.5, 1.2))
+
+        try:
+            # First attempt regular click
+             continue_button.click()
+        except:
+            # Fallback to JavaScript click
+            self.driver.execute_script("arguments[0].click();", continue_button)
+        
+        print('continue_button')
 
         password_input_field = WebDriverWait(self.driver, 15).until(
             EC.presence_of_element_located((By.XPATH,PASSWORD_INPUT_FIELD_XPATH))
         )
 
-        password_input_field.send_keys(password)
+        self.clear_and_type(password_input_field, password)
+        
+        print('password_input_field')
 
         self.driver.find_element(By.XPATH, FINAL_SIGN_IN_BUTTON_XPATH).click()
         print("Arrive ")
@@ -100,205 +177,199 @@ class Browser:
         passkey_button = WebDriverWait(self.driver, 20).until(
                     EC.presence_of_element_located((By.XPATH, '/html/body/div/div[1]/div/div[1]'))
                 )
+        
+        print('passkey_button')
 
         self.driver.execute_script(
                     'arguments[0].click()',
                     passkey_button
                 )
+        print('passkey_button clicked')
 
-
-
+    def get_current_player_id(self):
+        original_element = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, PLAYER_ID_LOCATION_CSS))
+                )
+        original_player_id = original_element.text.strip().replace('(','').replace(')','')
+        return original_player_id        
+    
     def switch_player_id(self, player_id):
+        """Switch to specified player ID with improved error handling"""
+        
         try:
-            player_id = int(player_id)
-        except:
-            raise Exception("Invalid Player ID")
+            if not str(player_id).isdigit():
+                raise ValueError("Invalid Player ID format")
 
-        self.driver.switch_to.default_content()
-        try:
-            original_player_id = WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, PLAYER_ID_LOCATION_XPATH))).text.strip()
-        except:
-            original_player_id = 'None'
-        if str(player_id) in original_player_id:
-            print('Current Player ID is same as provided player ID. Skipping the step.')
-            return
+            self.driver.switch_to.default_content()
+            
+            # Get current player ID
+            try:
+                original_player_id = self.get_current_player_id()
+            except TimeoutException:
+                raise PlayerSwitchError("Player ID element not found")
 
+            if str(player_id) == original_player_id:
+                logger.info("Player ID already matches target ID")
+                return
 
-        # print('original_player_id: ',original_player_id)
-        WebDriverWait(self.driver, 15).until(
-            EC.invisibility_of_element((By.XPATH, SIGN_IN_BUTTON_XPATH))
-        )
+            # Initiate player ID change
+            switch_btn = WebDriverWait(self.driver, 15).until(
+                EC.element_to_be_clickable((By.XPATH, PLAYER_ID_SWITCH_INITIATE_BUTTON_XPATH)))
+            self.safe_click(switch_btn)
+            logger.info("Player ID switch initiated")
 
+            # Handle ID input
+            id_input = WebDriverWait(self.driver, 15).until(
+                EC.element_to_be_clickable((By.XPATH, PLAYER_ID_INPUT_FIELD_XPATH)))
+            self.clear_and_type(id_input, str(player_id))
 
-        WebDriverWait(self.driver, 15).until(
-            EC.presence_of_element_located((By.XPATH, DETECT_PAGE_LOADED_XPATH))
-        )
+            # Confirm change
+            confirm_btn = WebDriverWait(self.driver, 15).until(
+                EC.element_to_be_clickable((By.XPATH, PLAYER_ID_SWITCH_OK_BUTTON_XPATH)))
+            self.safe_click(confirm_btn)
 
-
-        status = self.driver.execute_script(f"document.querySelector('{PLAYER_ID_SWITCH_INITIATE_BUTTON_SELECTOR if original_player_id!='None' else PLAYER_ID_SWITCH_INITIATE_BUTTON_SELECTOR_NONE}').click();return 'clicked player switch button';")
-
-        print(status)
-
-        player_id_input_field = WebDriverWait(self.driver, 15).until(
-            EC.element_to_be_clickable((By.XPATH, PLAYER_ID_INPUT_FIELD_XPATH))
-        )
-        time.sleep(20)
-        player_id_input_field.clear()
-        player_id_input_field.send_keys(player_id)
-
-        self.driver.execute_script(f"document.querySelector('{PLAYER_ID_SWITCH_OK_BUTTON_SELECTOR}').click();return 'clicked player switch OK button';")
-
-        time.sleep(2)
-
-        current_player_id = WebDriverWait(self.driver, 2).until(
-            EC.presence_of_element_located((By.XPATH, PLAYER_ID_LOCATION_XPATH))
-        ).text.strip()
-        # print('current_player_id: ', current_player_id)
-        if original_player_id==current_player_id:
-            raise Exception("Invalid Player ID")
-
-        print('Player switch process complete')
+            # Verify change
+            WebDriverWait(self.driver, 15).until(
+                lambda d: self.get_current_player_id() == str(player_id))
+            logger.info("Player ID successfully changed") 
+        except WebDriverException as e:
+            logger.error(f"Player switch failed: {str(e)}")
+            raise PlayerSwitchError("Failed to switch player ID") from e
 
     def redeem_code(self, redeem_code):
-        time.sleep(2)
-        print("redeem_code 1")
-        redeem_code_input_box = self.driver.find_element(By.XPATH, REDEEM_CODE_INPUT_BOX_XPATH)
-        redeem_code_input_box.clear()
-        redeem_code_input_box.send_keys(redeem_code)
+        """Redeem code with proper error handling and status tracking"""
+        try:
+            self.wait_for_page_load()
+            
+            # Enter redemption code
+            redeem_input = WebDriverWait(self.driver, 15).until(
+                EC.element_to_be_clickable((By.XPATH, REDEEM_CODE_INPUT_BOX_XPATH)))
+            self.clear_and_type(redeem_input, redeem_code)
+            time.sleep(random.uniform(0.5, 1.2))
+            # Initiate redemption
+            # self.safe_click((By.XPATH, REDEEM_INITIATE_BUTTON_XPATH))
+            self.driver.execute_script(
+            f'document.querySelector("#root > div.App.app-wrap__relative > div.container_wrap > div.redeem_modules_box.default_box > div > div.RedeemStepBox_step_box__kecmM.RedeemStepBox_redeem_step__Cb6tE > div.RedeemStepBox_mess__6gbK6 > div.RedeemStepBox_btn_wrap__wEKY9 > div > div").click()'
+            )
+            
+            try:
+                WebDriverWait(self.driver, 15).until(
+                EC.visibility_of_element_located((By.XPATH, REDEEM_CODE_POP_UP_XPATH))
+                )
+            except TimeoutException:
+                try:
+                    WebDriverWait(self.driver, 4).until(
+                    EC.visibility_of_element_located((By.XPATH, REDEEM_CONFIRM_POP_UP_XPATH))
+                    )
+                    ok_btn = self.driver.find_element(By.XPATH, REDEEM_CONFIRM_BTN_POP_UP_XPATH)
+                    self.safe_click(ok_btn)
+                except TimeoutException:
+                    error_element = WebDriverWait(self.driver, 3).until(
+                        EC.presence_of_element_located((By.XPATH, CODE_ERROR_NOTICE_XPATH)))
+                    print(error_element.text)
+                    return
+                
+            self.human_scroll()
 
-        print(1)
-        self.driver.execute_script(
-            f'document.querySelector("{REDEEM_INITIATE_BUTTON_SELECTOR}").click()'
+            # Handle submission
+            self.handle_redemption_submission()
+            
+            print('Redemption submitted')
+
+            # Check outcome
+            return self.check_redemption_outcome()
+
+        except WebDriverException as e:
+            logger.error(f"Redemption failed: {str(e)}")
+            return f"Redemption error: {str(e)}"
+
+    # Helper methods
+    def clear_and_type(self, element, text):
+        """Clear field and type text with human-like intervals"""
+        element.clear()
+        for char in text:
+            element.send_keys(char)
+            time.sleep(random.uniform(0.05, 0.2))
+
+    def wait_for_page_load(self, timeout=30):
+        """Wait for page to fully load"""
+        WebDriverWait(self.driver, timeout).until(
+            lambda d: d.execute_script("return document.readyState") == "complete"
         )
 
-        time.sleep(5)
-        print(2)
-        if self.driver.execute_script("return document.readyState") != "complete":
-            while True:
-                if self.driver.execute_script("return document.readyState") == "complete":
-                    break
-            self.redeem_code(redeem_code)
-
-        try:
-            print(3)
-            error_btn = WebDriverWait(self.driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, REDEEM_ERROR_NOTICE_XPATH))
-                    )
-            if error_btn:
-                return self.driver.find_element(By.XPATH, REDEEM_ERROR_NOTICE_XPATH).text
-        except:...
-
-        try:
-            print(4)
-            submit_redeem_btn = WebDriverWait(self.driver, 15).until(
-                EC.presence_of_element_located((By.XPATH, SUBMIT_REDEEM_CODE_BUTTON_XPATH))
-            )
-            self.driver.execute_script(
-                'arguments[0].click()',
-                submit_redeem_btn
-            )
-
-        except:...
-
-        try:
-            print(4)
-            submit_redeem_btn2 = WebDriverWait(self.driver, 15).until(
-                EC.presence_of_element_located((By.XPATH, SUBMIT_REDEEM_CODE_BUTTON_XPATH2))
-            )
-            self.driver.execute_script(
-                'arguments[0].click()',
-                submit_redeem_btn2
-            )
-
-        except:...
-
-        try:
-            print(5)
-            return self.driver.find_element(By.XPATH, REDEEM_ERROR_NOTICE_XPATH).text
-        except:...
-
-
-        try:
-            print(6)
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, REDEEM_SUCCESS_NOTICE_XPATH))
-            )
-            return True
-        except:
+    def handle_redemption_submission(self):
+        """Handle different submission scenarios"""
+        for locator in [SUBMIT_REDEEM_CODE_BUTTON_XPATH3, SUBMIT_REDEEM_CODE_BUTTON_XPATH, SUBMIT_REDEEM_CODE_BUTTON_XPATH2]:
             try:
-                print(7)
-                return self.driver.find_element(By.XPATH, REDEEM_ERROR_NOTICE_XPATH).text
-            except:...
-            return 'Failed to Redeem Code for UNKNOWN REASON'
+                btn = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, locator)))
+                self.safe_click(btn)
+                return
+            except TimeoutException:
+                continue
+        raise RedemptionError("No valid submit button found")
 
+    def check_redemption_outcome(self):
+        """Check and return redemption result"""
+        try:
+            success_element = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, REDEEM_SUCCESS_NOTICE_XPATH)))
+            return True
+        except TimeoutException:
+            WebDriverWait(self.driver, 4).until(
+                    EC.visibility_of_element_located((By.XPATH, REDEEM_CONFIRM_POP_UP_XPATH))
+                    )
+            ok_btn = self.driver.find_element(By.XPATH, REDEEM_CONFIRM_BTN_POP_UP_XPATH)
+            self.safe_click(ok_btn)
+            # try:
+            #     error_element = WebDriverWait(self.driver, 3).until(
+            #         EC.presence_of_element_located((By.XPATH, REDEEM_ERROR_NOTICE_XPATH)))
+            #     return error_element.text
+            # except TimeoutException:
+            return "Redemption status unknown - no confirmation received"
+    
+    def human_scroll(self):
+        """Simulate human-like scrolling behavior"""
+        scroll_pause_time = random.uniform(0.5, 1.2)
+        scroll_amount = random.randint(200, 400)
+        
+        # Get scrollable container (adjust selector if needed)
+        scroll_container = self.driver.find_element(
+            By.XPATH, REDEEM_CODE_POP_UP_CONTENT_XPATH
+        )
 
+        last_height = self.driver.execute_script(
+            "return arguments[0].scrollHeight", scroll_container
+        )
 
-
-
-
-
-    # def redeem_code2(self, redeem_code):
-
-    #     print("redeem_code 2")
-    #     redeem_code_input_box = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[7]/div[3]/div/div[2]/div[2]/div[1]/div[2]/div/div[1]/input')
-    #     redeem_code_input_box.send_keys(redeem_code)
-
-
-    #     self.driver.execute_script(
-    #         f'document.querySelector("{REDEEM_INITIATE_BUTTON_SELECTOR}").click()'
-    #     )
-
-    #     time.sleep(3)
-
-    #     try:
-    #         error_btn = WebDriverWait(self.driver, 5).until(
-    #                     EC.presence_of_element_located((By.XPATH, REDEEM_ERROR_NOTICE_XPATH))
-    #                 )
-    #         if(error_btn):
-    #             return self.driver.find_element(By.XPATH, REDEEM_ERROR_NOTICE_XPATH).text
-    #     except:...
-
-    #     try:
-    #         submit_redeem_btn = WebDriverWait(self.driver, 15).until(
-    #             EC.presence_of_element_located((By.XPATH, SUBMIT_REDEEM_CODE_BUTTON_XPATH))
-    #         )
-    #         self.driver.execute_script(
-    #             'arguments[0].click()',
-    #             submit_redeem_btn
-    #         )
-    #     except:
-
-    #         submit_redeem_btn2 = WebDriverWait(self.driver, 15).until(
-    #             EC.presence_of_element_located((By.XPATH, SUBMIT_REDEEM_CODE_BUTTON_XPATH2))
-    #         )
-
-    #         self.driver.execute_script(
-    #             'arguments[0].click()',
-    #             submit_redeem_btn2
-    #         )
-    #     time.sleep(3)
-
-    #     try:
-    #         return self.driver.find_element(By.XPATH, REDEEM_ERROR_NOTICE_XPATH).text
-    #     except:...
-
-
-    #     try:
-    #         WebDriverWait(self.driver, 10).until(
-    #             EC.presence_of_element_located((By.XPATH, REDEEM_SUCCESS_NOTICE_XPATH))
-    #         )
-    #         time.sleep(4)
-
-    #         if  self.driver.find_element(By.XPATH, REDEEM_SUCCESS_NOTICE_XPATH).text == 'REDEEM SUCCESSFUL' or self.driver.find_element(By.XPATH, REDEEM_SUCCESS_NOTICE_XPATH).text == 'تم استبداله بنجاح':
-    #             print('Success Inside If')
-
-    #             return True
-
-    #         return False
-    #     except:
-    #         try:
-    #             return self.driver.find_element(By.XPATH, REDEEM_ERROR_NOTICE_XPATH).text
-    #         except:...
-    #         return 'Failed to Redeem Code for UNKNOWN REASON'
-
+        while True:
+            # Randomize scroll direction and amount
+            current_scroll = self.driver.execute_script(
+                "return arguments[0].scrollTop", scroll_container
+            )
+            self.driver.execute_script(
+                f"arguments[0].scrollBy(0, {scroll_amount})", scroll_container
+            )
+            
+            time.sleep(scroll_pause_time * random.uniform(0.8, 1.2))
+            
+            new_height = self.driver.execute_script(
+                "return arguments[0].scrollHeight", scroll_container
+            )
+            
+            # Random chance to scroll back up slightly
+            if random.random() < 0.15:
+                self.driver.execute_script(
+                    f"arguments[0].scrollBy(0, -{scroll_amount//2})", scroll_container
+                )
+                time.sleep(scroll_pause_time)
+            
+            # Break if we've reached bottom
+            if current_scroll + scroll_container.size['height'] >= new_height:
+                break
+                
+            # Update last height and randomize parameters
+            last_height = new_height
+            scroll_amount = random.randint(150, 300)
+            scroll_pause_time = random.uniform(0.3, 0.8)
+    
