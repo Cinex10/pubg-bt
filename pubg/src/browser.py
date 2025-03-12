@@ -81,6 +81,7 @@ class Browser:
         options.add_argument(f"--user-data-dir={user_data}")
         
         # service = Service(f"{url}\\chromedriver.exe")
+        options.add_argument("--start-maximized")  # Start maximized
         self.driver = webdriver.Chrome(options=options)
         # self.driver = webdriver.Chrome(options=options)
     
