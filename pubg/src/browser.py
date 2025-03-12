@@ -39,10 +39,10 @@ PLAYER_ID_SWITCH_OK_BUTTON_XPATH="//div[contains(@class, 'BindLoginPop_btn_wrap_
 PLAYER_LOGIN_BTN_XPATH="//div[@class='MobileNav_sign_in__qA2oK MobileNav_imp__hchy7 false']"
 
 
-REDEEM_CODE_INPUT_BOX_XPATH = "//div[contains(@class, 'RedeemStepBox_input_box__') and contains(@class, 'RedeemStepBox_vip__')]//div[contains(@class, 'Input_input_box__')]//div[contains(@class, 'Input_input_wrap_box__')]//input[@type='text']"
-# REDEEM_INITIATE_BUTTON_XPATH = "//div[contains(@class,'RedeemStepBox_btn_wrap__')]//div[contains(@class,'Button_btn_wrap__')]"
+# REDEEM_CODE_INPUT_BOX_XPATH = "//div[contains(@class, 'RedeemStepBox_input_box__') and contains(@class, 'RedeemStepBox_vip__')]//div[contains(@class, 'Input_input_box__')]//div[contains(@class, 'Input_input_wrap_box__')]//input[@type='text']"
+REDEEM_CODE_INPUT_BOX_XPATH = "//input[@placeholder='يرجى إدخال رمز استرداد']"
+REDEEM_INITIATE_BUTTON_XPATH = "//div[contains(@class,'RedeemStepBox_btn_wrap__')]//div[contains(@class,'Button_btn_wrap__')]"
 # //*[@id="root"]/div/div[7]/div[3]/div/div[2]/div[2]/div[1]/div/div
-REDEEM_INITIATE_BUTTON_XPATH = "//input[@placeholder='يرجى إدخال رمز استرداد']"
 CODE_ERROR_NOTICE_XPATH="//div[contains(@class, 'Input_error_text__')]//div[1]"
 
 REDEEM_CONFIRM_POP_UP_XPATH = "//div[contains(@class,'PopStatusPrompt_active__')]"
