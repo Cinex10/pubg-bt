@@ -245,7 +245,7 @@ class Browser:
             
             # Enter redemption code
             redeem_input = WebDriverWait(self.driver, 15).until(
-                EC.element_to_be_selected((By.XPATH, REDEEM_CODE_INPUT_BOX_XPATH)))
+                EC.element_to_be_clickable((By.XPATH, REDEEM_CODE_INPUT_BOX_XPATH)))
             self.clear_and_type(redeem_input, redeem_code)
             time.sleep(random.uniform(0.5, 1.2))
             # Initiate redemption
