@@ -243,7 +243,8 @@ class Browser:
         """Redeem code with proper error handling and status tracking"""
         try:
             # self.wait_for_page_load()
-            pdb.set_trace()
+            # pdb.set_trace()
+            time.sleep(random.uniform(1, 2.5))
             
             # Enter redemption code
             redeem_input = WebDriverWait(self.driver, 15).until(
