@@ -47,8 +47,8 @@ REDEEM_INITIATE_BUTTON_XPATH = "//div[contains(@class,'RedeemStepBox_btn_wrap__'
 CODE_ERROR_NOTICE_XPATH="//div[contains(@class, 'Input_error_text__')]//div[1]"
 
 REDEEM_CONFIRM_POP_UP_XPATH = "//div[contains(@class,'PopStatusPrompt_active__')]"
-REDEEM_CONFIRM_BTN_POP_UP_XPATH = '//*[@id="root"]/div[2]/div[7]/div[8]/div[2]/div[3]/div/div/div/div/div'
-
+REDEEM_CONFIRM_BTN_POP_UP_XPATH = "//div[contains(text(),'بالتأكيد')]"
+# //div[@class='PopStatusPrompt_pop_mode_box__nSRlx PopStatusPrompt_active__GMZrj']//div[@class='Button_btn__P0ibl Button_btn_primary__1ncdM']//div//div[1]
 # PopStatusPrompt_pop_mode_box__nSRlx PopStatusPrompt_active__GMZrj
 
 REDEEM_CODE_POP_UP_XPATH = "//div[contains(@class, 'PopConfirmRedeem_pop_mode_box__')]"
