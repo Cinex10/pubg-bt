@@ -276,7 +276,7 @@ class Browser:
                 self.handle_redemption_submission()
                 
                 print('Redemption submitted')
-            except TimeoutException:
+            except Exception:
                 try:
                     ok_btn = WebDriverWait(self.driver, 4).until(
                     EC.element_to_be_clickable((By.XPATH, REDEEM_CONFIRM_BTN_POP_UP_XPATH))
